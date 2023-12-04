@@ -1,96 +1,41 @@
+import sys
 import re
+from collections import defaultdict
+D = open('/Users/jonathan/PycharmProjects/adventofcodepuzzles/advent-of-code/day3/engineschematic').read().strip()
+lines = D.split('\n')
+G = [[c for c in line] for line in lines]
+R = len(G)
+C = len(G[0])
 
-file_path = '/Users/jonathan/PycharmProjects/adventofcodepuzzles/day3/engineschematic'
+p1 = 0
+nums = defaultdict(list)
+for r in range(len(G)):
+  gears = set() # positions of '*' characters next to the current number
+  n = 0
+  has_part = False
+  for c in range(len(G[r])+1):
+    if c<C and G[r][c].isdigit():
+      n = n*10+int(G[r][c])
+      for rr in [-1,0,1]:
+        for cc in [-1,0,1]:
+          if 0<=r+rr<R and 0<=c+cc<C:
+            ch = G[r+rr][c+cc]
+            if not ch.isdigit() and ch != '.':
+              has_part = True
+            if ch=='*':
+              gears.add((r+rr, c+cc))
+    elif n>0:
+      for gear in gears:
+        nums[gear].append(n)
+      if has_part:
+        p1 += n
+      n = 0
+      has_part = False
+      gears = set()
 
-with open(file_path, 'r') as file:
-    strings_list = [line.strip() for line in file]
-
-specialChar = '.0123456789'
-numbers = '0123456789'
-
-
-def findSym ():
-    totalSym = 0
-
-    # to the right:
-    if posinstr < 139:
-        if (string[posinstr - 1]) not in specialChar:
-            totalSym += 1
-            print(f'symbol left found in: {string[posinstr + 1]}')
-
-    # to the left:
-    if posinstr > 0 and posinstr < 139:
-        if (string[posinstr + 1]) not in specialChar:
-            totalSym += 1
-            print(f'symbol right found in: {string[posinstr - 1]}')
-
-    # above:
-    string_above = strings_list[currentstr - 1]
-    if string_above[posinstr] not in specialChar:
-        print(f'symbol above found in {currentstr} position: {posinstr}')
-        totalSym += 1
-
-    # below:
-    if currentstr < 139:
-        string_below = strings_list[currentstr + 1]
-        if string_below[posinstr] not in specialChar:
-            print(f'symbol below found in {currentstr} position: {posinstr}')
-            totalSym += 1
-
-    # diagonal:
-    if currentstr > 0:
-        if posinstr > 0:
-            string_diagonal_up_left = strings_list[currentstr - 1]
-            if string_diagonal_up_left[posinstr - 1] not in specialChar:
-                print(f'symbol diagonal left up found in {currentstr} position: {posinstr}')
-                totalSym += 1
-        if posinstr < 139:
-            string_diagonal_up_right = strings_list[currentstr - 1]
-            if string_diagonal_up_right[posinstr + 1] not in specialChar:
-                print(f'symbol diagonal right up found in {currentstr} position: {posinstr}')
-                totalSym += 1
-    if currentstr < 139:
-        if posinstr > 0:
-            string_diagonal_down_left = strings_list[currentstr + 1]
-            if string_diagonal_down_left[posinstr - 1] not in specialChar:
-                print(f'symbol diagonal left down found in {currentstr} position: {posinstr}')
-                totalSym += 1
-        if posinstr < 139:
-            string_diagonal_down_right = strings_list[currentstr + 1]
-            if string_diagonal_down_right[posinstr + 1] not in specialChar:
-                print(f'symbol diagonal right down found in {currentstr} position: {posinstr}')
-                totalSym += 1
-
-    return totalSym
-
-currentstr = -1
-finalSum = 0
-currentTot = 0
-
-for string in strings_list:
-    currentstr += 1
-    posinstr = -1
-    currentNumber = ''
-
-    for i in string:
-        posinstr += 1
-
-        if i.isdigit():
-            currentNumber += str(i)
-            print(f'current Number in isDigit {currentNumber}')
-            currentTot += findSym()
-
-        if posinstr < 139:
-            if string[posinstr + 1] not in numbers and currentTot < 1:
-                currentNumber = ''
-            if string[posinstr + 1] not in numbers and currentTot > 0:
-                finalSum += int(currentNumber)
-                print(finalSum)
-                currentNumber = ''
-                currentTot = 0
-        if posinstr == 139:
-            if currentTot > 0:
-                finalSum += int(currentNumber)
-                currentNumber = ''
-
-print(finalSum)
+print(p1)
+p2 = 0
+for k,v in nums.items():
+  if len(v)==2:
+    p2 += v[0]*v[1]
+print(p2)
